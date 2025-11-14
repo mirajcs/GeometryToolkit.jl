@@ -25,6 +25,9 @@ jobs:
         with:
           version: ${{ matrix.version }}
 
+      - name: Add PyCall
+        run: julia -e 'using Pkg; Pkg.add("PyCall")'
+
       # Force PyCall to use Conda before testing
       - name: Force PyCall to use Julia Conda
         run: |
