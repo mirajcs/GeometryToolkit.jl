@@ -29,3 +29,17 @@ jobs:
 
       - uses: julia-actions/julia-runtest@v1
         continue-on-error: ${{ matrix.version == 'nightly' }}
+
+      - name: Force PyCall to use Julia Conda
+        run: |
+            julia -e 'ENV["PYTHON"] = ""; using Pkg; Pkg.build("PyCall")'
+
+      - name: Install SymPy
+        run: |
+            julia -e 'using PyCall; pyimport_conda("sympy", "sympy")'
+
+      - name: Install dependencies
+        run: julia -e 'using Pkg; Pkg.instantiate()'
+
+      - name: Run tests
+        run: julia -e 'using Pkg; Pkg.test(coverage=true)
