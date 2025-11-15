@@ -3,7 +3,7 @@
 [![Build Status](https://github.com/mirajcs/VectorUtils/workflows/CI/badge.svg)](https://github.com/mirajcs/VectorUtils/actions)
 [![Documentation](https://img.shields.io/badge/docs-stable-blue.svg)](https://mirajcs.github.io/VectorUtils/)
 
-A Julia package for computing symbolic and numeric vector properties of parametric curves, including tangent vectors, Frenet-Serret frames, curvature, and torsion.
+A Julia package for computing symbolic and numeric vector properties of parametric curves, including vector operations, Frenet–Serret frames, curvature, and torsion.
 
 ## Features
 
