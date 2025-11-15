@@ -1,4 +1,5 @@
-using Test
+using Pkg
+Pkg.add("Test")
 using VectorUtils
 using SymPy
 using QuadGK
