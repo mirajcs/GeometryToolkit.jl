@@ -7,11 +7,11 @@ A Julia package for computing symbolic and numeric vector properties of parametr
 
 ## Features
 
-- ✨ **Symbolic & Numeric Computation**: Analytical expressions and numerical evaluations
-- 📐 **Frenet-Serret Frame**: Complete TNB (tangent-normal-binormal) frame calculation
-- 📊 **Geometric Invariants**: Curvature κ(t) and torsion τ(t)
-- 🎯 **2D & 3D Support**: Handle planar and space curves
-- 🚀 **High Performance**: Optimized algorithms for both modes
+- **Symbolic & Numeric Computation**: Analytical expressions and numerical evaluations
+- **Frenet-Serret Frame**: Complete TNB (tangent-normal-binormal) frame calculation
+- **Geometric Invariants**: Curvature κ(t) and torsion τ(t)
+- **2D & 3D Support**: Handle planar and space curves
+- **High Performance**: Optimized algorithms for both modes
 
 ## Installation
 
@@ -26,19 +26,14 @@ Pkg.add(url="https://github.com/mirajcs/VectorUtils")
 using VectorUtils
 
 # Define a circular helix
-r(t) = [cos(t), sin(t), t]
+r = [cos(t), sin(t), t]
 
 # Compute at t = π/4
 t₀ = π/4
 
-# Tangent vector
-T = tangent(r, t₀)
 
-# Full Frenet frame
-frame = frenet_frame(r, t₀)
-println("Tangent:  ", frame.tangent)
-println("Normal:   ", frame.normal)
-println("Binormal: ", frame.binormal)
+T = Tangent(r, t, t₀) or T = Tnagent(r,t)
+N = Norm
 
 # Curvature and torsion
 κ = curvature(r, t₀)
