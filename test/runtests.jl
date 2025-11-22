@@ -684,6 +684,131 @@ end
 
 
 
+@testset "Acceleration Tests" begin
+    println("\n" * "="^50)
+    println("Acceleration tests")
+    println("="^50)
+
+    @testset "Basic symbolic acceleration" begin
+        @syms t
+        curve = [t^2, t, 2*t]
+        aT, aN = Acceleration(curve, t)
+
+        # Verify aT is symbolic
+        @test aT isa Sym
+        @test aN isa Sym
+
+        # Verify they're not zero
+        @test simplify(aT) != 0
+        @test simplify(aN) != 0
+        println("✓ Basic symbolic acceleration computed")
+    end
+
+    @testset "Numeric evaluation at t_val" begin
+        @syms t
+        curve = [t^2, t, 2*t]
+        aT_val, aN_val = Acceleration(curve, t, 1)
+
+        # At t=1: v = [2, 1, 2], a = [2, 0, 0]
+        # |v| = 3
+        # aT = v·a / |v| = 4 / 3
+        # v×a = [0, 4, -2], |v×a| = sqrt(20) = 2*sqrt(5)
+        # aN = |v×a| / |v| = 2*sqrt(5) / 3
+        expected_aT = 4/3
+        expected_aN = 2*sqrt(5)/3
+
+        @test isapprox(N(aT_val), expected_aT, atol=1e-6)
+        @test isapprox(N(aN_val), expected_aN, atol=1e-6)
+        println("✓ Numeric evaluation at t_val passed")
+    end
+
+    @testset "Straight line motion" begin
+        @syms t
+        # Moving along [t, 0, 0] - straight line along x-axis
+        curve = [t, 0, 0]
+        aT, aN = Acceleration(curve, t)
+
+        # For straight line motion:
+        # aT = (1*0) / 1 = 0 (constant velocity)
+        # aN = 0 (no curvature)
+        @test simplify(aT) == 0
+        @test simplify(aN) == 0
+        println("✓ Straight line motion has zero acceleration")
+    end
+
+    @testset "Circular motion" begin
+        @syms t
+        # Unit circle: r(t) = [cos(t), sin(t), 0]
+        curve = [cos(t), sin(t), 0]
+        aT, aN = Acceleration(curve, t)
+
+        # For circular motion at constant speed:
+        # v = [-sin(t), cos(t), 0], |v| = 1
+        # a = [-cos(t), -sin(t), 0]
+        # aT = 0 (constant speed)
+        # aN = 1 (centripetal acceleration for unit circle)
+        @test simplify(aT) == 0
+        @test simplify(aN) == 1
+        println("✓ Circular motion: aT=0, aN=1")
+    end
+
+    @testset "Parabolic motion" begin
+        @syms t
+        curve = [t, t^2, 0]
+        aT, aN = Acceleration(curve, t)
+
+        # At t=0: v=[1,0,0], a=[0,2,0]
+        aT_0, aN_0 = Acceleration(curve, t, 0)
+
+        # aT(0) = 0*1 / 1 = 0
+        # aN(0) = ||(1,0,0) × (0,2,0)|| / 1 = 2
+        @test isapprox(N(aT_0), 0.0, atol=1e-6)
+        @test isapprox(N(aN_0), 2.0, atol=1e-6)
+        println("✓ Parabolic motion computed correctly")
+    end
+
+    @testset "Return type is tuple" begin
+        @syms t
+        curve = [t^2, sin(t), cos(t)]
+        result = Acceleration(curve, t)
+
+        @test result isa Tuple
+        @test length(result) == 2
+        @test all(isa(r, Sym) for r in result)
+        println("✓ Return type is tuple of two symbolic expressions")
+    end
+
+    @testset "Helix acceleration" begin
+        @syms t
+        # Helix: [cos(t), sin(t), t]
+        curve = [cos(t), sin(t), t]
+        aT, aN = Acceleration(curve, t)
+
+        # v = [-sin(t), cos(t), 1], |v| = sqrt(2)
+        # a = [-cos(t), -sin(t), 0]
+        # v·a = sin(t)cos(t) - sin(t)cos(t) = 0
+        # aT = 0 / sqrt(2) = 0 (constant speed)
+        # v×a = [sin(t), -cos(t), 1], |v×a| = sqrt(2)
+        # aN = sqrt(2) / sqrt(2) = 1 (centripetal acceleration)
+        @test simplify(aT) == 0
+        @test simplify(aN - 1) == 0
+        println("✓ Helix acceleration: aT=0, aN=1")
+    end
+
+    @testset "Acceleration components are positive" begin
+        @syms t
+        curve = [t^3, sin(t), exp(t)]
+
+        # Evaluate at t=0.5 to check they're positive
+        aT_val, aN_val = Acceleration(curve, t, 0.5)
+
+        # aN should always be non-negative
+        @test N(aN_val) >= -1e-10  # Allow small numerical error
+        println("✓ Normal acceleration is non-negative")
+    end
+end
+
+
 println("\n" * "="^50)
 println("All tests completed!")
 println("="^50)

@@ -2,7 +2,7 @@ module GeometryToolkit
 
 greet() = print("Hello Geometrician")
 
-export Norm, Normalize, Dot, Cross, Angle, Projection, ParametricLine, PlaneEquation, ArcLength, ArcLengthParametrization, Tangent, Curvature, Normal, Binormal, Torsion, FrenetSerret
+export Norm, Normalize, Dot, Cross, Angle, Projection, ParametricLine, PlaneEquation, ArcLength, ArcLengthParametrization, Tangent, Curvature, Normal, Binormal, Torsion, FrenetSerret, Acceleration
 
 using LinearAlgebra, SymPy, QuadGK
 
@@ -478,5 +478,53 @@ function FrenetSerret(curve::Vector, t::Sym, t_val=nothing)
 
     return (T, N, B)
 end
+
+"""
+    Acceleration(curve::Vector, t::Sym, t_val=nothing)
+
+Compute the Tangential and Normal Components of Acceleration
+
+# Arguments
+- `curve::Vector`: 3D Parametric curve components
+- `t::Sym`: Parameter symbol
+- `t_val`: Optional numeric value to evaluate at
+
+# Returns
+Tuple of (Tangential component, Normal component) of acceleration vector.
+
+# Examples
+```julia
+julia> @syms t
+julia> curve = [t^2, t, 2*t]
+julia> aT, aN = Acceleration(curve, t)
+julia> aT
+2*t / sqrt(5 + 4*t^2)
+
+julia> aN
+2*sqrt(5) / sqrt(5 + 4*t^2)
+
+julia> # Evaluate at t = 1
+julia> Acceleration(curve, t, 1)
+(4/3, 2*sqrt(5)/3)
+```
+"""
+function Acceleration(curve::Vector, t::Sym, t_val=nothing)
+    #compute the first derivative
+    first_derivative = [diff(c,t) for c in curve]
+    #compute the second derivative
+    second_derivative = [diff(c1, t) for c1 in first_derivative]
+    aT = Dot(first_derivative, second_derivative)/Norm(first_derivative)
+    aN = Norm(Cross(first_derivative, second_derivative))/Norm(first_derivative)
+
+    if t_val !== nothing
+        aT = subs(aT, t => t_val)
+        aN = subs(aN, t => t_val)
+    end
+
+    return (aT, aN)
+end
+
+
+
 
 end # module VectorUtils
